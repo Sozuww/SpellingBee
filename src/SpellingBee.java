@@ -2,6 +2,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static java.io.ObjectInputFilter.merge;
+
 /**
  * Spelling Bee
  *
@@ -43,7 +45,8 @@ public class SpellingBee {
     // TODO: generate all possible substrings and permutations of the letters.
     //  Store them all in the ArrayList words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
-    public void generate() {
+    public void generate()
+    {
         generateHelper("", letters);
     }
 
@@ -63,7 +66,55 @@ public class SpellingBee {
     // TODO: Apply mergesort to sort all words. Do this by calling ANOTHER method
     //  that will find the substrings recursively.
     public void sort() {
-        // YOUR CODE HERE
+        words = mergeSort(words);
+    }
+
+    private ArrayList<String> mergeSort(ArrayList<String> list)
+    {
+        int mid = list.size() / 2;
+        ArrayList<String> left = new ArrayList<>(list.subList(0, mid));
+        ArrayList<String> right = new ArrayList<>(list.subList(mid, list.size()));
+
+        left = mergeSort(left);
+        right = mergeSort((right);
+
+        return merge(left, right);
+    }
+
+    private ArrayList<String> merge(ArrayList<String> left, ArrayList<String> right)
+    {
+        ArrayList<String> merged = new ArrayList<>();
+        int i = 0, j = 0;
+
+        while (i < left.size() && j < right.size())
+        {
+            if(left.get(i).compareTo(right.get(j)) <= 0)
+            {
+                merged.add(left.get(i));
+                i++;
+            }
+
+            else
+            {
+                merged.add(right.get(j));
+                j++;
+            }
+        }
+
+        while (i < left.size())
+        {
+            merged.add(left.get(i));
+            i++;
+        }
+
+        while (j < left.size())
+        {
+            merged.add(left.get(j));
+            j++;
+        }
+
+        return merged;
+
     }
 
     // Removes duplicates from the sorted list.
