@@ -2,14 +2,11 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-import static java.io.ObjectInputFilter.merge;
 
 /**
  * Spelling Bee
- *
  * This program accepts an input of letters. It prints to an output file
  * all English words that can be generated from those letters.
- *
  * For example: if the user inputs the letters "doggo" the program will generate:
  * do
  * dog
@@ -20,12 +17,10 @@ import static java.io.ObjectInputFilter.merge;
  * gogo
  * goo
  * good
- *
  * It utilizes recursion to generate the strings, mergesort to sort them, and
  * binary search to find them in a dictionary.
  *
- * @author Zach Blick, [ADD YOUR NAME HERE]
- *
+ * @author Zach Blick, Kai Mawakana
  * Written on March 5, 2023 for CS2 @ Menlo School
  *
  * DO NOT MODIFY MAIN OR ANY OF THE METHOD HEADERS.
@@ -39,7 +34,7 @@ public class SpellingBee {
 
     public SpellingBee(String letters) {
         this.letters = letters;
-        words = new ArrayList<String>();
+        words = new ArrayList<>();
     }
 
     // TODO: generate all possible substrings and permutations of the letters.
@@ -50,16 +45,22 @@ public class SpellingBee {
         generateHelper("", letters);
     }
 
-    private void generateHelper(String prefix, String remaining)
-    {
-        if (!prefix.isEmpty())
-        {
+    private void generateHelper(String prefix, String remaining) {
+        // Add the current prefix if it's not empty
+        if (!prefix.isEmpty()) {
             words.add(prefix);
         }
 
-        for (int i = 0; i < remaining.length(); i++)
-        {
-            generateHelper(prefix + remaining.charAt(i), remaining.substring(0, i) + remaining.substring(i + 1));
+        // Try adding each remaining character to the prefix
+        for (int i = 0; i < remaining.length(); i++) {
+            // Skip duplicates in the remaining string
+            if (i > 0 && remaining.charAt(i) == remaining.charAt(i - 1))
+            {
+                continue;
+            }
+
+            generateHelper(prefix + remaining.charAt(i),
+                    remaining.substring(0, i) + remaining.substring(i + 1));
         }
     }
 
@@ -71,12 +72,19 @@ public class SpellingBee {
 
     private ArrayList<String> mergeSort(ArrayList<String> list)
     {
+        // Separation is complete / list is very small
+        if (list.size() <= 1)
+        {
+            return list;
+        }
+
+        // Split list in half
         int mid = list.size() / 2;
         ArrayList<String> left = new ArrayList<>(list.subList(0, mid));
         ArrayList<String> right = new ArrayList<>(list.subList(mid, list.size()));
 
         left = mergeSort(left);
-        right = mergeSort((right);
+        right = mergeSort(right);
 
         return merge(left, right);
     }
@@ -107,9 +115,9 @@ public class SpellingBee {
             i++;
         }
 
-        while (j < left.size())
+        while (j < right.size())
         {
-            merged.add(left.get(j));
+            merged.add(right.get(j));
             j++;
         }
 
@@ -129,17 +137,55 @@ public class SpellingBee {
         }
     }
 
-    // TODO: For each word in words, use binary search to see if it is in the dictionary.
-    //  If it is not in the dictionary, remove it from words.
+
+    // Removes non-words from list using binary search
     public void checkWords() {
-        // YOUR CODE HERE
+        ArrayList<String> validWords = new ArrayList<>();
+        for (String word : words)
+        {
+            if(binarySearch(word))
+            {
+                validWords.add(word);
+            }
+        }
+
+        words = validWords;
     }
 
-    // Prints all valid words to wordList.txt
+    private boolean binarySearch(String word)
+    {
+        int left = 0, right = DICTIONARY_SIZE - 1;
+
+        while (left <= right)
+        {
+            int mid = left + (right - left) / 2;
+            int comparison = DICTIONARY[mid].compareTo(word);
+
+            if (comparison == 0)
+            {
+                return true;
+            }
+
+            else if (comparison < 0)
+            {
+                left = mid + 1;
+            }
+
+            else
+            {
+                right = mid - 1;
+            }
+        }
+
+        return false;
+    }
+
+    // Returns all valid words
     public void printWords() throws IOException {
         File wordFile = new File("Resources/wordList.txt");
         BufferedWriter writer = new BufferedWriter(new FileWriter(wordFile, false));
         for (String word : words) {
+            System.out.println(word + "\n");
             writer.append(word);
             writer.newLine();
         }
